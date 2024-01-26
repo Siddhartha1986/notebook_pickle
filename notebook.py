@@ -1,103 +1,76 @@
-	
 import pickle
 import time
 
-count = 0
+# Load existing notes from a file or create an empty list if the file doesn't exist
+def load_notes(filename):
+    try:
+        with open(filename, 'rb') as file:
+            return pickle.load(file)
+    except (IOError, EOFError):
+        print("No default notebook was found, created one.")
+        return []
 
-try:
-	filehandle = open("notebook.dat","rb")
-	pickle.load(filehandle)
-	filehandle.close()
-except IOError:
-	filehandle = open("notebook.dat","wb")
-	#pickle.dump([],filehandle)
-	print("No default notebook was found, created one.")
-	filehandle.close()
+# Save notes to a file using pickle
+def save_notes(filename, notes):
+    with open(filename, 'wb') as file:
+        pickle.dump(notes, file)
 
+# Add a new note with a timestamp
+def add_note(notes):
+    note = input("Write a new note: ")
+    timestamp = time.strftime("%X %x")
+    notes.append(f"{note}:::{timestamp}")
 
+# Edit an existing note
+def edit_note(notes):
+    if not notes:
+        print("No notes to edit.")
+        return
+    for idx, note in enumerate(notes):
+        print(f"{idx}: {note}")
+    index = int(input("Which of them will be changed?: "))
+    if 0 <= index < len(notes):
+        new_note = input("Give the new note: ")
+        timestamp = time.strftime("%X %x")
+        notes[index] = f"{new_note}:::{timestamp}"
+    else:
+        print("Invalid note number.")
 
-while True:
-		
-	print("(1) Read the notebook")
-	print("(2) Add note")
-	print("(3) Edit a note")
-	print("(4) Delete a note")
-	print("(5) Save and quit")
-	
-	select = int(input("Please select one:"))
-	
-	if select == 1:
-		try:
-			readfile = open("notebook.dat","rb")
-			content = pickle.load(readfile)
-			#for i in content:
-				#print(i,end="")
-			print(content)
-			print("\n")
-			readfile.close()
-		except EOFError:
-			pass
-	
-	if select == 2:
-		count = count + 1
-		addfile = open("notebook.dat","ab")
-		newnote = input("Write a new note:")
-		
-		
-		time_date = time.strftime("%X %x")
-		new =newnote +":::"+str(time_date)
-		news = [new]
-		pickle.dump(news,addfile)
-		
-		addfile.close()
-	
-	if select ==3:
-		editfile = open("notebook.dat","rb")
-		econtent = pickle.load(editfile)
-		
-		print("The list has",count,"notes.")
-		choose = int(input("Which of them will be changed?:"))
-		print(econtent)
-		editfile.close()
-		
-		new_note = input("Give the new note:")
-		filehandle3 = open("notebook.dat","wb")
-		time_date = time.strftime("%X %x")
-		new =new_note +":::"+str(time_date)
-		pickle.dump(new,filehandle3)
-		
-		
-		filehandle3.close()
-		
-	if select == 4:
-		
-		print("The list has",count,"notes.")
-		delete_choice = int(input("which of them will be deleted?:"))
-		
-		openfile4 = open("notebook.dat","rb")
-		content4 = pickle.load(openfile4)
-		print("Deleted note",content4)
-		openfile4.close()
-		
-		deletefile = open("notebook.dat","wb")
-		pickle.dump([],deletefile)
-		deletefile.close
-	
-	if select == 5:
-		print("Notebook shutting down, thank you.")
-		
-		
-		
-		break
-		
-		
-		
-		
-		
-		
-		
+# Delete an existing note
+def delete_note(notes):
+    if not notes:
+        print("No notes to delete.")
+        return
+    for idx, note in enumerate(notes):
+        print(f"{idx}: {note}")
+    index = int(input("Which of them will be deleted?: "))
+    if 0 <= index < len(notes):
+        print(f"Deleted note {notes.pop(index)}")
+    else:
+        print("Invalid note number.")
 
-		
-					 
-		
-	
+# Main program loop
+def main():
+    filename = "notebook.dat"
+    notes = load_notes(filename)
+
+    while True:
+        print("\n(1) Read the notebook\n(2) Add note\n(3) Edit a note\n(4) Delete a note\n(5) Save and quit")
+        choice = input("Please select one: ")
+
+        if choice == '1':
+            for note in notes:
+                print(note)
+        elif choice == '2':
+            add_note(notes)
+        elif choice == '3':
+            edit_note(notes)
+        elif choice == '4':
+            delete_note(notes)
+        elif choice == '5':
+            save_notes(filename, notes)
+            print("Notebook shutting down, thank you.")
+            break
+
+if __name__ == "__main__":
+    main()
